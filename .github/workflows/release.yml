@@ -82,6 +82,8 @@ jobs:
           python -c "from PIL import Image; Image.open('packaging/icon.png').save('packaging/icon.ico', format='ICO')"
           exe_path="$(pwd -W)/release/${{ matrix.asset_name }}"
           out_dir="$(pwd -W)/release"
+          exe_path="${exe_path//\//\\}"
+          out_dir="${out_dir//\//\\}"
           "/c/Program Files (x86)/NSIS/makensis.exe" \
             /NOCD \
             "/DVERSION=${APP_VERSION#v}" \
