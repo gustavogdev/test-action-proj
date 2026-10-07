@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=myapp
+Comment=myapp __VERSION__
+Exec=myapp-linux
+Icon=myapp
+Type=Application
+Categories=Utility;
+Terminal=false
