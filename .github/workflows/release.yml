@@ -74,6 +74,8 @@ jobs:
       - name: Build Windows installer
         if: matrix.os == 'windows-latest'
         shell: bash
+        env:
+          MSYS_NO_PATHCONV: "1"
         run: |
           choco install nsis --no-progress -y
           pip install -q pillow
