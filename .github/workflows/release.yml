@@ -80,10 +80,13 @@ jobs:
           choco install nsis --no-progress -y
           pip install -q pillow
           python -c "from PIL import Image; Image.open('packaging/icon.png').save('packaging/icon.ico', format='ICO')"
+          exe_path="$(pwd -W)/release/${{ matrix.asset_name }}"
+          out_dir="$(pwd -W)/release"
           "/c/Program Files (x86)/NSIS/makensis.exe" \
             /NOCD \
             "/DVERSION=${APP_VERSION#v}" \
-            "/DEXE_PATH=release/${{ matrix.asset_name }}" \
+            "/DEXE_PATH=$exe_path" \
+            "/DOUT_DIR=$out_dir" \
             packaging/windows/installer.nsi
 
       - name: Build macOS .dmg

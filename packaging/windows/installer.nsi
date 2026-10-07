@@ -9,9 +9,12 @@
 !ifndef EXE_PATH
   !define EXE_PATH "dist\myapp-windows.exe"
 !endif
+!ifndef OUT_DIR
+  !define OUT_DIR "release"
+!endif
 
 Name "myapp"
-OutFile "release\myapp-windows-installer.exe"
+OutFile "${OUT_DIR}\myapp-windows-installer.exe"
 InstallDir "$LOCALAPPDATA\Programs\myapp"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
