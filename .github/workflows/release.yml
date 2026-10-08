@@ -110,6 +110,8 @@ jobs:
           sips -z 16 16 packaging/icon.png --out icon.iconset/icon_16x16.png
           iconutil -c icns icon.iconset -o "$app_dir/Contents/Resources/icon.icns"
 
+          codesign --force --deep -s - "$app_dir"
+
           hdiutil create -volname myapp -srcfolder "$app_dir" -ov -format UDZO \
             "release/myapp-macos-installer.dmg"
           rm -rf "$app_dir" icon.iconset
