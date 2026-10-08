@@ -75,9 +75,14 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 
-def run_server(db_path, port=8765):
+def create_server(db_path, port=8765):
     server = CounterServer(("127.0.0.1", port), Handler, db_path)
     print(f"Serving click counter at http://127.0.0.1:{port}/ (db: {db_path})")
+    return server
+
+
+def run_server(db_path, port=8765):
+    server = create_server(db_path, port)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

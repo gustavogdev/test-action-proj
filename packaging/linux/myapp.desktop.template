@@ -6,3 +6,4 @@ Icon=myapp
 Type=Application
 Categories=Utility;
 Terminal=false
+StartupWMClass=myapp
