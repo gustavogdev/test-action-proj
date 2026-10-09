@@ -1,9 +1,17 @@
 """Minimal stdlib HTTP server for the click-counter demo."""
 import html
+import random
 import sqlite3
 from contextlib import closing
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+WORDS = (
+    "apple", "breeze", "cedar", "dune", "ember", "falcon", "glacier",
+    "harbor", "ivory", "jasper", "kestrel", "lagoon", "meadow", "nimbus",
+    "opal", "pebble", "quartz", "ridge", "sable", "thicket", "umber",
+    "velvet", "willow", "xenon", "yarrow", "zephyr",
+)
 
 PAGE_TEMPLATE = """\
 <!doctype html>
@@ -15,12 +23,16 @@ PAGE_TEMPLATE = """\
   <button type="submit">Click me</button>
 </form>
 <table border="1" cellpadding="4">
-  <tr><th>ID</th><th>Clicked At</th></tr>
+  <tr><th>ID</th><th>Clicked At</th><th>Word</th></tr>
   {rows}
 </table>
 </body>
 </html>
 """
+
+
+def _random_word():
+    return random.choice(WORDS)
 
 
 class CounterServer(HTTPServer):
@@ -39,12 +51,13 @@ class Handler(BaseHTTPRequestHandler):
         with closing(sqlite3.connect(self.server.db_path)) as conn:
             (count,) = conn.execute("SELECT COUNT(*) FROM clicks").fetchone()
             rows = conn.execute(
-                "SELECT id, clicked_at FROM clicks ORDER BY id DESC"
+                "SELECT id, clicked_at, word FROM clicks ORDER BY id DESC"
             ).fetchall()
 
         rows_html = "\n  ".join(
-            f"<tr><td>{row_id}</td><td>{html.escape(clicked_at)}</td></tr>"
-            for row_id, clicked_at in rows
+            f"<tr><td>{row_id}</td><td>{html.escape(clicked_at)}</td>"
+            f"<td>{html.escape(word)}</td></tr>"
+            for row_id, clicked_at, word in rows
         )
         body = PAGE_TEMPLATE.format(count=count, rows=rows_html).encode("utf-8")
 
@@ -62,8 +75,8 @@ class Handler(BaseHTTPRequestHandler):
 
         with closing(sqlite3.connect(self.server.db_path)) as conn:
             conn.execute(
-                "INSERT INTO clicks (clicked_at) VALUES (?)",
-                (datetime.now().isoformat(),),
+                "INSERT INTO clicks (clicked_at, word) VALUES (?, ?)",
+                (datetime.now().isoformat(), _random_word()),
             )
             conn.commit()
 

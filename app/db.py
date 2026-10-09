@@ -25,6 +25,7 @@ SCHEMA = {
     "clicks": {
         "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
         "clicked_at": "TEXT NOT NULL",
+        "word": "TEXT NOT NULL DEFAULT ''",
     },
 }
 
