@@ -35,7 +35,7 @@ import truststore
 truststore.inject_into_ssl()
 
 import requests
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 
 from app._version import __version__
 from app.db import get_data_dir
@@ -43,7 +43,7 @@ from app.db import get_data_dir
 GITHUB_TOKEN_EMBEDDED = "REPLACED_AT_BUILD_TIME"
 GITHUB_REPO = "REPLACED_AT_BUILD_TIME"  # "owner/repo"
 
-API_URL = "https://api.github.com/repos/{repo}/releases/latest"
+API_URL = "https://api.github.com/repos/{repo}/releases"
 
 UPDATE_GRACE_PERIOD_DAYS = 7
 
@@ -62,6 +62,10 @@ logger.addHandler(_handler)
 
 
 def get_latest_release():
+    """Returns the release with the highest semantic version, not GitHub's
+    notion of "latest" (/releases/latest returns the most recently
+    *published* release, which silently goes stale/wrong whenever an older
+    tag gets deleted and re-published, e.g. to ship a fix on top of it)."""
     url = API_URL.format(repo=GITHUB_REPO)
     headers = {
         "Authorization": f"Bearer {GITHUB_TOKEN_EMBEDDED}",
@@ -75,7 +79,21 @@ def get_latest_release():
             url, headers={"Accept": "application/vnd.github+json"}, timeout=10
         )
     response.raise_for_status()
-    return response.json()
+    releases = response.json()
+
+    candidates = []
+    for release in releases:
+        if release.get("draft") or release.get("prerelease"):
+            continue
+        try:
+            version = Version(release["tag_name"].lstrip("v"))
+        except InvalidVersion:
+            continue
+        candidates.append((version, release))
+
+    if not candidates:
+        raise RuntimeError(f"no usable releases found for {GITHUB_REPO!r}")
+    return max(candidates, key=lambda pair: pair[0])[1]
 
 
 def is_newer(release):
