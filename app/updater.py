@@ -121,7 +121,17 @@ def download_asset(asset_url, dest_path):
         "Authorization": f"Bearer {GITHUB_TOKEN_EMBEDDED}",
         "Accept": "application/octet-stream",
     }
-    with requests.get(asset_url, headers=headers, stream=True, timeout=30) as response:
+    response = requests.get(asset_url, headers=headers, stream=True, timeout=30)
+    if response.status_code == 401:
+        # Same rationale as get_latest_release(): this repo is public, so
+        # asset downloads don't require the embedded token either.
+        response = requests.get(
+            asset_url,
+            headers={"Accept": "application/octet-stream"},
+            stream=True,
+            timeout=30,
+        )
+    with response:
         response.raise_for_status()
         with open(dest_path, "wb") as f:
             shutil.copyfileobj(response.raw, f)
