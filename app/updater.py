@@ -44,6 +44,12 @@ def get_latest_release():
         "Accept": "application/vnd.github+json",
     }
     response = requests.get(url, headers=headers, timeout=10)
+    if response.status_code == 401:
+        # The embedded token can be missing/stale, but this repo is public,
+        # so the Releases API is still readable without any auth at all.
+        response = requests.get(
+            url, headers={"Accept": "application/vnd.github+json"}, timeout=10
+        )
     response.raise_for_status()
     return response.json()
 
