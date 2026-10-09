@@ -22,6 +22,7 @@ PAGE_TEMPLATE = """\
 <form method="POST" action="/click">
   <button type="submit">Click me</button>
 </form>
+<p id="update-status"></p>
 <table border="1" cellpadding="4">
   <tr><th>ID</th><th>Clicked At</th><th>Word</th></tr>
   {rows}
