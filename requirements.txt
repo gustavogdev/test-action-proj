@@ -2,3 +2,4 @@ requests
 packaging
 pyinstaller
 pywebview
+truststore

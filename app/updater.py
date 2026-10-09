@@ -12,6 +12,14 @@ GITHUB_TOKEN_EMBEDDED and GITHUB_REPO below are placeholders overwritten by
 
 Every check (startup or manual) is logged to <data_dir>/updater.log, since
 the packaged --windowed build has no visible stdout/stderr.
+
+HTTPS requests are verified against the OS trust store (via `truststore`)
+rather than the `certifi` bundle `requests` ships with. On machines behind
+a TLS-inspecting proxy, the OS already trusts the proxy's root CA --
+certifi's public CA list doesn't, which otherwise makes every HTTPS call
+fail with SSLCertVerificationError. This must never be "fixed" by
+bundling/exporting a cert from any particular machine into this repo;
+relying on the OS trust store is what makes it work on any machine.
 """
 import logging
 import os
@@ -21,6 +29,10 @@ import sys
 import tempfile
 import tkinter as tk
 from datetime import datetime, timedelta, timezone
+
+import truststore
+
+truststore.inject_into_ssl()
 
 import requests
 from packaging.version import Version
